@@ -10,10 +10,11 @@ let items = [
 const listElement = document.querySelector(".to-do__list");
 const formElement = document.querySelector(".to-do__form");
 const inputElement = document.querySelector(".to-do__input");
+const localStorageKey = 'tasks'
 
 function loadTasks() {
 	const uTasks = localStorage.getItem(localStorageKey);
-	if (userTasks) {
+	if (uTasks) {
 		return JSON.parse(uTasks);
 	}
 	return items;
@@ -22,6 +23,15 @@ function loadTasks() {
 function createItem(item) {
 	const template = document.getElementById("to-do__item-template");
 	const clone = template.content.querySelector(".to-do__item").cloneNode(true);
+
+	const textElement = clone.querySelector(".to-do__item-text");
+	textElement.addEventListener('blur', () => {
+		textElement.setAttribute("contenteditable", "false");	
+		const items = getTasksFromDOM();
+		saveTasks(items);	
+	})
+	
+	textElement.textContent = item;
 
 	const deleteButton = clone.querySelector(".to-do__item-button_type_delete");
 	deleteButton.addEventListener('click', () => {
@@ -45,15 +55,6 @@ function createItem(item) {
 		textElement.focus();
 	})
 
-	const textElement = clone.querySelector(".to-do__item-text");
-	textElement.addEventListener('blur', () => {
-		textElement.setAttribute("contenteditable", "false");	
-		const items = getTasksFromDOM();
-		saveTasks(items);	
-	})
-	
-	textElement.textContent = item;
-
 	return clone;
 
 }
@@ -74,11 +75,11 @@ function saveTasks(tasks) {
 formElement.addEventListener("submit", (event)=> {
 	event.preventDefault();
 
-	if(itemTxt.value.trim()) {
-		listElement.prepend(createItem(itemTxt.value));
+	if(inputElement.value.trim()) {
+		listElement.prepend(createItem(inputElement.value));
 		items = getTasksFromDOM();
 		saveTasks(items);
-		itemTxt.value = "";
+		inputElement.value = "";
 	}
 });
 

@@ -11,7 +11,12 @@ const listElement = document.querySelector(".to-do__list");
 const formElement = document.querySelector(".to-do__form");
 const inputElement = document.querySelector(".to-do__input");
 
-// Создает DOM-элемент задачи с обработчиками событий
+function loadTasks() {
+  const saved = localStorage.getItem("tasks");
+  return saved ? JSON.parse(saved) : items;
+}
+
+// создание элемента задачи
 function createItem(item) {
   const template = document.getElementById("to-do__item-template");
   const clone = template.content.querySelector(".to-do__item").cloneNode(true);
@@ -19,16 +24,16 @@ function createItem(item) {
   const deleteButton = clone.querySelector(".to-do__item-button_type_delete");
   const duplicateButton = clone.querySelector(".to-do__item-button_type_duplicate");
   const editButton = clone.querySelector(".to-do__item-button_type_edit");
-  
   textElement.textContent = item;
 
-  deleteButton.addEventListener("click", () => {
+  // обработчики
+  deleteButton.addEventListener('click', function() {
     clone.remove();
     const items = getTasksFromDOM();
     saveTasks(items);
   });
 
-  duplicateButton.addEventListener("click", () => {
+  duplicateButton.addEventListener('click', function() {
     const itemName = textElement.textContent;
     const newItem = createItem(itemName);
     listElement.prepend(newItem);
@@ -36,56 +41,47 @@ function createItem(item) {
     saveTasks(items);
   });
 
-  editButton.addEventListener("click", () => {
-    textElement.setAttribute("contenteditable", true);
+  editButton.addEventListener('click', function() {
+    textElement.setAttribute('contenteditable', 'true');
     textElement.focus();
   });
 
-  textElement.addEventListener("blur", () => {
-    textElement.setAttribute("contenteditable", false);
+  textElement.addEventListener('blur', function() {
+    textElement.setAttribute('contenteditable', 'false');
     const items = getTasksFromDOM();
     saveTasks(items);
   });
-
   return clone;
 }
 
-// Собирает все задачи со страницы в массив
+// DOM
 function getTasksFromDOM() {
-  const itemsNamesElements = listElement.querySelectorAll(".to-do__item-text");
+  const itemsNamesElements = listElement.querySelectorAll('.to-do__item-text');
   const tasks = [];
-  itemsNamesElements.forEach((itemNameElement) => {
-    tasks.push(itemNameElement.textContent);
+  itemsNamesElements.forEach(function(element) {
+    tasks.push(element.textContent);
   });
-
   return tasks;
 }
 
 function saveTasks(tasks) {
-  localStorage.setItem("tasks", JSON.stringify(tasks));
+  localStorage.setItem('tasks', JSON.stringify(tasks));
 }
 
-// Создает DOM-элемент задачи с обработчиками событий
-function loadTasks() {
-  const tasks = JSON.parse(localStorage.getItem("tasks"));
-  if (tasks) {
-    return tasks;
-  }
-  return items;
-}
-
-// Обработчик добавления новой задачи через форму
-formElement.addEventListener("submit", (event) => {
+// отправка формы
+formElement.addEventListener('submit', function(event) {
   event.preventDefault();
-  listElement.prepend(createItem(inputElement.value));
-  items = getTasksFromDOM();
+  const taskText = inputElement.value.trim();
+  const newItem = createItem(taskText);
+  listElement.prepend(newItem);
+  const items = getTasksFromDOM();
   saveTasks(items);
-  formElement.reset();
+  inputElement.value = '';
 });
 
-//Инициализация
+// инициализация
 items = loadTasks();
-
-items.forEach((item) => {
-  listElement.append(createItem(item));
+items.forEach(function(item) {
+    const itemElement = createItem(item);
+    listElement.append(itemElement);
 });

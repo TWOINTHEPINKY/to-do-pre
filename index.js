@@ -89,8 +89,8 @@ formElement.addEventListener('submit', function(event){
 
 
 //Инициализация
-items = loadTasks();
-items.forEach(function(item){
+let curitems = loadTasks();
+curitems.forEach(function(item){
 	const itemElement = createItem(item);
 	listElement.append(itemElement);
 });
